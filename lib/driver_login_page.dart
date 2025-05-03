@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tayotaxi_driver/pages/driver_request_page.dart'; // 파일 위치에 맞게 경로 수정
+import 'package:tayotaxi_driver/pages/driver_request_page.dart'; // 경로 확인 필요
 
 class DriverLoginPage extends StatelessWidget {
   const DriverLoginPage({super.key});
@@ -11,11 +11,10 @@ class DriverLoginPage extends StatelessWidget {
       body: Center(
         child: ElevatedButton(
           onPressed: () {
-            // 예시용 빈 리스트 전달
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const DriverRequestPage(requests: []),
+                builder: (context) => const DriverRequestPage(), // ✅ 수정됨
               ),
             );
           },
