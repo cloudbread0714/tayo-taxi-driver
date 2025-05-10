@@ -6,8 +6,11 @@ import 'firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await dotenv.load(fileName: ".env");
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   runApp(const DriverApp());
 }
@@ -21,7 +24,7 @@ class DriverApp extends StatelessWidget {
       title: 'Driver App',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(primarySwatch: Colors.amber),
-      home: const DriverLoginPage(),  // 로그인 페이지로 시작
+      home: const DriverLoginPage(),
     );
   }
 }

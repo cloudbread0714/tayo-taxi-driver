@@ -1,9 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:tayotaxi_driver/driver_login_page.dart';
+import 'package:tayotaxi_driver/navigate_to_pickup_page.dart';
+import 'package:latlong2/latlong.dart' as ll;
 
-import '../models/ride_request.dart';
+class RideRequest {
+  final String passengerId;
+  final String pickupPlaceName;
+  final String destinationName;
+
+  RideRequest({
+    required this.passengerId,
+    required this.pickupPlaceName,
+    required this.destinationName,
+  });
+
+  factory RideRequest.fromMap(Map<String, dynamic> map) {
+    return RideRequest(
+      passengerId: map['passengerId'] ?? '',
+      pickupPlaceName: map['pickupPlaceName'] ?? '',
+      destinationName: map['destinationName'] ?? '',
+    );
+  }
+}
 
 class DriverRequestPage extends StatefulWidget {
   const DriverRequestPage({super.key});
@@ -54,8 +76,12 @@ class _DriverRequestPageState extends State<DriverRequestPage> {
   }
 
   bool _isWithinRadius(LatLng pickup, double radiusKm) {
-    final Distance distance = Distance();
-    return distance.as(LengthUnit.Kilometer, _driverLocation!, pickup) <= radiusKm;
+    final ll.Distance distance = ll.Distance();
+    return distance.as(
+      ll.LengthUnit.Kilometer,
+      ll.LatLng(_driverLocation!.latitude, _driverLocation!.longitude),
+      ll.LatLng(pickup.latitude, pickup.longitude),
+    ) <= radiusKm;
   }
 
   @override
@@ -76,7 +102,24 @@ class _DriverRequestPageState extends State<DriverRequestPage> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('주변 승차 요청')),
+      appBar: AppBar(
+        title: const Text('주변 승차 요청'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: '로그아웃',
+            onPressed: () async {
+              await FirebaseAuth.instance.signOut();
+              if (!mounted) return;
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (_) => const DriverLoginPage()),
+                    (route) => false,
+              );
+            },
+          )
+        ],
+      ),
       body: StreamBuilder<QuerySnapshot>(
         stream: rideRequestRef.where('status', isEqualTo: 'pending').snapshots(),
         builder: (context, snapshot) {
@@ -89,20 +132,50 @@ class _DriverRequestPageState extends State<DriverRequestPage> {
           }
 
           final docs = snapshot.data!.docs;
+          final now = Timestamp.now();
+          final tenMinutesAgo = Timestamp.fromMillisecondsSinceEpoch(
+            now.millisecondsSinceEpoch - 10 * 60 * 1000,
+          );
+
+          final ll.Distance distance = ll.Distance();
 
           final filtered = docs.where((doc) {
             final map = doc.data() as Map<String, dynamic>;
             final pickupLat = map['pickupLat'];
             final pickupLng = map['pickupLng'];
+            final createdAt = map['createdAt'];
 
-            if (pickupLat == null || pickupLng == null) return false;
+            if (pickupLat == null || pickupLng == null || createdAt == null) return false;
+            if (createdAt is! Timestamp || createdAt.compareTo(tenMinutesAgo) < 0) return false;
 
             final pickup = LatLng(pickupLat.toDouble(), pickupLng.toDouble());
             return _isWithinRadius(pickup, 5.0);
           }).toList();
 
+          filtered.sort((a, b) {
+            final mapA = a.data() as Map<String, dynamic>;
+            final mapB = b.data() as Map<String, dynamic>;
+
+            final pickupA = LatLng(mapA['pickupLat'], mapA['pickupLng']);
+            final pickupB = LatLng(mapB['pickupLat'], mapB['pickupLng']);
+
+            final distA = distance.as(
+              ll.LengthUnit.Kilometer,
+              ll.LatLng(_driverLocation!.latitude, _driverLocation!.longitude),
+              ll.LatLng(pickupA.latitude, pickupA.longitude),
+            );
+
+            final distB = distance.as(
+              ll.LengthUnit.Kilometer,
+              ll.LatLng(_driverLocation!.latitude, _driverLocation!.longitude),
+              ll.LatLng(pickupB.latitude, pickupB.longitude),
+            );
+
+            return distA.compareTo(distB);
+          });
+
           if (filtered.isEmpty) {
-            return const Center(child: Text('5km 이내 요청 없음'));
+            return const Center(child: Text('5km 이내, 10분 이내 요청 없음'));
           }
 
           return ListView.builder(
@@ -113,20 +186,28 @@ class _DriverRequestPageState extends State<DriverRequestPage> {
               final ride = RideRequest.fromMap(map);
               final docId = doc.id;
 
+              final pickup = LatLng(map['pickupLat'], map['pickupLng']);
+              final km = distance.as(
+                ll.LengthUnit.Kilometer,
+                ll.LatLng(_driverLocation!.latitude, _driverLocation!.longitude),
+                ll.LatLng(pickup.latitude, pickup.longitude),
+              );
+
               return Card(
                 margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 child: ListTile(
-                  title: Text('${ride.pickupPlaceName} ➜ ${ride.destinationName}'),
-                  subtitle: Text('승객 ID: ${ride.passengerId}'),
+                  title: Text('${ride.pickupPlaceName} ➔ ${ride.destinationName}'),
+                  subtitle: Text('승객 ID: ${ride.passengerId}\n거리: ${km.toStringAsFixed(2)} km'),
                   trailing: ElevatedButton(
-                    onPressed: () async {
-                      await rideRequestRef.doc(docId).update({
-                        'status': 'accepted',
-                        'driverId': 'DRIVER_001',
-                      });
-
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('요청 수락 완료')),
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => NavigateToPickupPage(
+                            driverLocation: _driverLocation!,
+                            pickupLocation: pickup,
+                            docId: docId,
+                          ),
+                        ),
                       );
                     },
                     child: const Text('수락'),
