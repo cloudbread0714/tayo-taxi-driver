@@ -11,7 +11,7 @@ plugins {
 android {
     namespace = "com.example.tayotaxi_driver"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = "27.0.12077973" // 🔧 Firebase가 요구하는 NDK 버전으로 명시적 설정
+    ndkVersion = "29.0.13113456" // 🔧 Firebase가 요구하는 NDK 버전으로 명시적 설정
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11

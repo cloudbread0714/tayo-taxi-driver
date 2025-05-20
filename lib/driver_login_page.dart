@@ -18,13 +18,19 @@ class _DriverLoginPageState extends State<DriverLoginPage> {
   @override
   void initState() {
     super.initState();
-    _checkLoginStatus();
+    // 빌드 완료 후 로그인 상태 확인
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkLoginStatus();
+    });
   }
 
   void _checkLoginStatus() {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      _checkRole();
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const DriverRequestPage()),
+      );
     }
   }
 
@@ -37,40 +43,20 @@ class _DriverLoginPageState extends State<DriverLoginPage> {
         email: email,
         password: password,
       );
-      _checkRole();
-    } on FirebaseAuthException catch (e) {
-      _showErrorDialog('로그인 실패', e.message ?? '알 수 없는 오류');
-    }
-  }
-
-  void _checkRole() async {
-    final uid = FirebaseAuth.instance.currentUser?.uid;
-    if (uid == null) {
-      _showErrorDialog('오류', '로그인된 사용자가 없습니다.');
-      return;
-    }
-
-    final snapshot = await FirebaseFirestore.instance.collection('driver').doc(uid).get();
-    if (!snapshot.exists) {
-      _showErrorDialog('접근 불가', '해당 사용자 정보가 존재하지 않습니다.');
-      return;
-    }
-
-    final role = snapshot.data()?['role'];
-    if (role == 'driver') {
+      // 로그인 후 요청 목록 페이지로 이동
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const DriverRequestPage()),
       );
-    } else {
-      _showErrorDialog('접근 불가', '이 앱은 택시 기사 전용입니다.');
+    } on FirebaseAuthException catch (e) {
+      _showErrorDialog('로그인 실패', e.message ?? '알 수 없는 오류');
     }
   }
 
   void _goToSignUp() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => const SignUpPage()),
+      MaterialPageRoute(builder: (_) => const DriverSignUpPage()),
     );
   }
 
@@ -93,71 +79,119 @@ class _DriverLoginPageState extends State<DriverLoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const SizedBox(height: 20),
-            const Text(
-              '택시 기사 로그인',
-              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
-            const Icon(Icons.local_taxi, size: 80, color: Colors.amber),
-            const SizedBox(height: 30),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 40),
-              child: Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.shade300),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Column(
-                  children: [
-                    TextField(
-                      controller: emailController,
-                      decoration: const InputDecoration(labelText: '아이디'),
-                    ),
-                    const SizedBox(height: 10),
-                    TextField(
-                      controller: passwordController,
-                      obscureText: true,
-                      decoration: const InputDecoration(labelText: '비밀번호'),
-                    ),
-                    const SizedBox(height: 20),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.amber.shade100,
-                        foregroundColor: Colors.black,
-                        minimumSize: const Size.fromHeight(40),
-                      ),
-                      onPressed: _login,
-                      child: const Text('로그인'),
-                    ),
-                    const SizedBox(height: 10),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.amber.shade100,
-                        foregroundColor: Colors.black,
-                        minimumSize: const Size.fromHeight(40),
-                      ),
-                      onPressed: _goToSignUp,
-                      child: const Text('회원가입'),
-                    ),
-                    const SizedBox(height: 10),
-                    TextButton(
-                      onPressed: () {},
-                      child: const Text(
-                        '아이디/비밀번호 찾기',
-                        style: TextStyle(decoration: TextDecoration.underline),
-                      ),
-                    )
-                  ],
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: Text(
+                  '기사용',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black54,
+                  ),
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 16),
+              Center(
+                child: Icon(
+                  Icons.local_taxi,
+                  size: 100,
+                  color: Colors.green,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Center(
+                child: Text(
+                  '로그인',
+                  style: TextStyle(
+                    fontSize: 36,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 40),
+              TextField(
+                controller: emailController,
+                style: const TextStyle(fontSize: 18),
+                decoration: InputDecoration(
+                  labelText: '아이디',
+                  labelStyle: const TextStyle(fontSize: 18),
+                  contentPadding: const EdgeInsets.symmetric(
+                      vertical: 20.0, horizontal: 16.0),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              TextField(
+                controller: passwordController,
+                obscureText: true,
+                style: const TextStyle(fontSize: 18),
+                decoration: InputDecoration(
+                  labelText: '비밀번호',
+                  labelStyle: const TextStyle(fontSize: 18),
+                  contentPadding: const EdgeInsets.symmetric(
+                      vertical: 20.0, horizontal: 16.0),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 30),
+              ElevatedButton(
+                onPressed: _login,
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 18.0),
+                  backgroundColor: Colors.green.shade200,
+                  foregroundColor: Colors.black,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text(
+                  '로그인',
+                  style: TextStyle(fontSize: 20),
+                ),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _goToSignUp,
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 18.0),
+                  backgroundColor: Colors.green.shade200,
+                  foregroundColor: Colors.black,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text(
+                  '회원가입',
+                  style: TextStyle(fontSize: 20),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Center(
+                child: TextButton(
+                  onPressed: () {},
+                  child: const Text(
+                    '아이디/비밀번호 찾기',
+                    style: TextStyle(
+                      fontSize: 16,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 40),
+            ],
+          ),
         ),
       ),
     );

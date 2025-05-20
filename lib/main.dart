@@ -23,7 +23,7 @@ class DriverApp extends StatelessWidget {
     return MaterialApp(
       title: 'Driver App',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(primarySwatch: Colors.amber),
+      theme: ThemeData(primarySwatch: Colors.green),
       home: const DriverLoginPage(),
     );
   }
