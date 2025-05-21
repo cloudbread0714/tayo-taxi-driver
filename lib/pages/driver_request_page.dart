@@ -187,6 +187,14 @@ class _DriverRequestPageState extends State<DriverRequestPage> {
               final docId = doc.id;
 
               final pickup = LatLng(map['pickupLat'], map['pickupLng']);
+              final destLat = map['destinationLat'];
+              final destLng = map['destinationLng'];
+
+              // 목적지 좌표가 없으면, 빈 위도경도(0,0) 임시 할당
+              final destination = (destLat != null && destLng != null)
+                  ? LatLng(destLat.toDouble(), destLng.toDouble())
+                  : LatLng(0, 0);
+
               final km = distance.as(
                 ll.LengthUnit.Kilometer,
                 ll.LatLng(_driverLocation!.latitude, _driverLocation!.longitude),
@@ -205,6 +213,7 @@ class _DriverRequestPageState extends State<DriverRequestPage> {
                           builder: (_) => NavigateToPickupPage(
                             driverLocation: _driverLocation!,
                             pickupLocation: pickup,
+                            destinationLocation: destination,  // 필수 전달
                             docId: docId,
                           ),
                         ),

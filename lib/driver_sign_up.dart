@@ -14,14 +14,16 @@ class _DriverSignUpPageState extends State<DriverSignUpPage> {
   final passwordController = TextEditingController();
   final nameController = TextEditingController();
   final phoneController = TextEditingController();
+  final carNumberController = TextEditingController();  // 차량번호 컨트롤러 추가
 
   void _signUp() async {
     final id = idController.text.trim();
     final password = passwordController.text.trim();
     final name = nameController.text.trim();
     final phone = phoneController.text.trim();
+    final carNumber = carNumberController.text.trim();
 
-    if (id.isEmpty || password.isEmpty || name.isEmpty || phone.isEmpty) {
+    if (id.isEmpty || password.isEmpty || name.isEmpty || phone.isEmpty || carNumber.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('모든 필드를 입력해주세요.')),
       );
@@ -34,12 +36,13 @@ class _DriverSignUpPageState extends State<DriverSignUpPage> {
       final user = cred.user;
       if (user != null) {
         await FirebaseFirestore.instance
-            .collection('driver')
+            .collection('drivers')  // 컬렉션명 'drivers'로 통일하는게 좋습니다.
             .doc(user.uid)
             .set({
           'email': id,
           'name': name,
           'phone': phone,
+          'carNumber': carNumber,  // 차량번호 저장
           'role': 'driver',
           'createdAt': FieldValue.serverTimestamp(),
         });
@@ -49,7 +52,7 @@ class _DriverSignUpPageState extends State<DriverSignUpPage> {
         context: context,
         builder: (_) => AlertDialog(
           title: const Text('회원가입 성공'),
-          content: Text('아이디: $id\n이름: $name\n전화번호: $phone'),
+          content: Text('아이디: $id\n이름: $name\n전화번호: $phone\n차량번호: $carNumber'),
           actions: [
             TextButton(
               onPressed: () {
@@ -117,6 +120,12 @@ class _DriverSignUpPageState extends State<DriverSignUpPage> {
                 label: '전화번호',
                 controller: phoneController,
                 keyboardType: TextInputType.phone,
+                action: TextInputAction.next,
+              ),
+              _buildRow(
+                label: '차량번호',  // 차량번호 입력 필드 추가
+                controller: carNumberController,
+                keyboardType: TextInputType.text,
                 action: TextInputAction.done,
               ),
               const SizedBox(height: 30),
