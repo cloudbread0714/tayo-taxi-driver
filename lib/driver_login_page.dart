@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:tayotaxi_driver/pages/driver_request_page.dart';
+import 'package:tayotaxi_driver/Before_drive.dart';
 import 'package:tayotaxi_driver/driver_sign_up.dart';
 
 class DriverLoginPage extends StatefulWidget {
@@ -24,17 +24,34 @@ class _DriverLoginPageState extends State<DriverLoginPage> {
     });
   }
 
-  void _checkLoginStatus() {
+  /// 이미 로그인된 사용자가 있으면 대시보드로 이동
+  Future<void> _checkLoginStatus() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
+      final snap = await FirebaseFirestore.instance
+          .collection('drivers')
+          .doc(user.uid)
+          .get();
+
+      final data = snap.data() ?? {};
+      final driverName = data['name'] as String? ?? '기사님';
+      final carNumber  = data['carNumber'] as String? ?? '번호 없음';
+
+      if (!mounted) return;
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const DriverRequestPage()),
+        MaterialPageRoute(
+          builder: (_) => DriverDashboardPage(
+            driverName: driverName,
+            carNumber: carNumber,
+          ),
+        ),
       );
     }
   }
 
-  void _login() async {
+  /// 이메일/비밀번호 로그인 처리 후 대시보드로 이동
+  Future<void> _login() async {
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
 
@@ -43,10 +60,25 @@ class _DriverLoginPageState extends State<DriverLoginPage> {
         email: email,
         password: password,
       );
-      // 로그인 후 요청 목록 페이지로 이동
+
+      final user = FirebaseAuth.instance.currentUser!;
+      final snap = await FirebaseFirestore.instance
+          .collection('drivers')
+          .doc(user.uid)
+          .get();
+      final data = snap.data() ?? {};
+      final driverName = data['name'] as String? ?? '기사님';
+      final carNumber  = data['carNumber'] as String? ?? '번호 없음';
+
+      if (!mounted) return;
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const DriverRequestPage()),
+        MaterialPageRoute(
+          builder: (_) => DriverDashboardPage(
+            driverName: driverName,
+            carNumber: carNumber,
+          ),
+        ),
       );
     } on FirebaseAuthException catch (e) {
       _showErrorDialog('로그인 실패', e.message ?? '알 수 없는 오류');
@@ -86,7 +118,8 @@ class _DriverLoginPageState extends State<DriverLoginPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Center(
+              const SizedBox(height: 27),
+              const Center(
                 child: Text(
                   '기사용',
                   style: TextStyle(
@@ -97,7 +130,7 @@ class _DriverLoginPageState extends State<DriverLoginPage> {
                 ),
               ),
               const SizedBox(height: 16),
-              Center(
+              const Center(
                 child: Icon(
                   Icons.local_taxi,
                   size: 100,
@@ -105,7 +138,7 @@ class _DriverLoginPageState extends State<DriverLoginPage> {
                 ),
               ),
               const SizedBox(height: 16),
-              Center(
+              const Center(
                 child: Text(
                   '로그인',
                   style: TextStyle(
@@ -123,7 +156,7 @@ class _DriverLoginPageState extends State<DriverLoginPage> {
                   labelText: '아이디',
                   labelStyle: const TextStyle(fontSize: 18),
                   contentPadding: const EdgeInsets.symmetric(
-                      vertical: 20.0, horizontal: 16.0),
+                      vertical: 22.0, horizontal: 16.0),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -138,7 +171,7 @@ class _DriverLoginPageState extends State<DriverLoginPage> {
                   labelText: '비밀번호',
                   labelStyle: const TextStyle(fontSize: 18),
                   contentPadding: const EdgeInsets.symmetric(
-                      vertical: 20.0, horizontal: 16.0),
+                      vertical: 22.0, horizontal: 16.0),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -148,7 +181,7 @@ class _DriverLoginPageState extends State<DriverLoginPage> {
               ElevatedButton(
                 onPressed: _login,
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 18.0),
+                  padding: const EdgeInsets.symmetric(vertical: 15.0),
                   backgroundColor: Colors.green.shade200,
                   foregroundColor: Colors.black,
                   shape: RoundedRectangleBorder(
@@ -160,11 +193,11 @@ class _DriverLoginPageState extends State<DriverLoginPage> {
                   style: TextStyle(fontSize: 20),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 15),
               ElevatedButton(
                 onPressed: _goToSignUp,
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 18.0),
+                  padding: const EdgeInsets.symmetric(vertical: 15.0),
                   backgroundColor: Colors.green.shade200,
                   foregroundColor: Colors.black,
                   shape: RoundedRectangleBorder(
