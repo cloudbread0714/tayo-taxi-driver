@@ -20,6 +20,7 @@ dependencies:
   url_launcher: ^6.1.7
   google_maps_flutter: ^2.5.0  # ✅ 위치 변경 (의존성이므로)
   http: ^0.13.6
+  
 
 dev_dependencies:
   flutter_test:
