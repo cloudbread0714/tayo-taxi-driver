@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'driver_login_page.dart'; // 로그인 페이지로 돌아가기
+import 'driver_login_page.dart';
 
 class DriverSignUpPage extends StatefulWidget {
   const DriverSignUpPage({super.key});
@@ -26,7 +27,7 @@ class _DriverSignUpPageState extends State<DriverSignUpPage> {
 
     if ([id, pw, name, phone, carNumber].any((s) => s.isEmpty)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('모든 필드를 입력해주세요.')),
+        const SnackBar(content: AutoSizeText('모든 필드를 입력해주세요.')),
       );
       return;
     }
@@ -53,8 +54,8 @@ class _DriverSignUpPageState extends State<DriverSignUpPage> {
       showDialog(
         context: context,
         builder: (_) => AlertDialog(
-          title: const Text('회원가입 성공'),
-          content: Text('아이디: $id\n이름: $name\n전화번호: $phone\n차량번호: $carNumber'),
+          title: const AutoSizeText('회원가입 성공'),
+          content: AutoSizeText('아이디: $id\n이름: $name\n전화번호: $phone\n차량번호: $carNumber'),
           actions: [
             TextButton(
               onPressed: () {
@@ -64,7 +65,7 @@ class _DriverSignUpPageState extends State<DriverSignUpPage> {
                       (route) => false,
                 );
               },
-              child: const Text('확인'),
+              child: const AutoSizeText('확인'),
             ),
           ],
         ),
@@ -76,12 +77,12 @@ class _DriverSignUpPageState extends State<DriverSignUpPage> {
       showDialog(
         context: context,
         builder: (_) => AlertDialog(
-          title: const Text('회원가입 실패'),
-          content: Text(message),
+          title: const AutoSizeText('회원가입 실패'),
+          content: AutoSizeText(message),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('확인'),
+              child: const AutoSizeText('확인'),
             ),
           ],
         ),
@@ -91,9 +92,12 @@ class _DriverSignUpPageState extends State<DriverSignUpPage> {
 
   @override
   Widget build(BuildContext context) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('기사 회원가입', style: TextStyle(fontSize: 20)),
+        title: AutoSizeText('기사 회원가입', style: TextStyle(fontSize: screenWidth * 20 / 400)),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
@@ -103,35 +107,35 @@ class _DriverSignUpPageState extends State<DriverSignUpPage> {
         elevation: 1,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(screenWidth * 24 / 400),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildLabel('아이디'),
-            const SizedBox(height: 8),
+            SizedBox(height: screenHeight * 8 / 800),
             _buildInputField(controller: _idController),
 
-            const SizedBox(height: 24),
+            SizedBox(height: screenHeight * 24 / 800),
             _buildLabel('비밀번호'),
-            const SizedBox(height: 8),
+            SizedBox(height: screenHeight * 8 / 800),
             _buildInputField(controller: _passwordController, obscureText: true),
 
-            const SizedBox(height: 24),
+            SizedBox(height: screenHeight * 24 / 800),
             _buildLabel('이름'),
-            const SizedBox(height: 8),
+            SizedBox(height: screenHeight * 8 / 800),
             _buildInputField(controller: _nameController),
 
-            const SizedBox(height: 24),
+            SizedBox(height: screenHeight * 24 / 800),
             _buildLabel('전화번호'),
-            const SizedBox(height: 8),
+            SizedBox(height: screenHeight * 8 / 800),
             _buildInputField(controller: _phoneController, keyboardType: TextInputType.phone),
 
-            const SizedBox(height: 24),
+            SizedBox(height: screenHeight * 24 / 800),
             _buildLabel('차량번호'),
-            const SizedBox(height: 8),
+            SizedBox(height: screenHeight * 8 / 800),
             _buildInputField(controller: _carNumberController),
 
-            const SizedBox(height: 40),
+            SizedBox(height: screenHeight * 40 / 800),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -143,7 +147,7 @@ class _DriverSignUpPageState extends State<DriverSignUpPage> {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
                 ),
-                child: const Text('가입하기', style: TextStyle(fontSize: 18)),
+                child: AutoSizeText('가입하기', style: TextStyle(fontSize: screenWidth * 18 / 400)),
               ),
             ),
           ],
@@ -153,8 +157,9 @@ class _DriverSignUpPageState extends State<DriverSignUpPage> {
   }
 
   Widget _buildLabel(String text) {
-    return Text(text,
-      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+    final double screenWidth = MediaQuery.of(context).size.width;
+    return AutoSizeText(text,
+      style: TextStyle(fontSize: screenWidth * 18 / 400, fontWeight: FontWeight.bold),
     );
   }
 
@@ -163,6 +168,7 @@ class _DriverSignUpPageState extends State<DriverSignUpPage> {
     bool obscureText = false,
     TextInputType keyboardType = TextInputType.text,
   }) {
+    final double screenWidth = MediaQuery.of(context).size.width;
     return Container(
       decoration: BoxDecoration(
         color: Colors.grey.shade200,
@@ -177,7 +183,7 @@ class _DriverSignUpPageState extends State<DriverSignUpPage> {
           contentPadding: EdgeInsets.symmetric(vertical: 14, horizontal: 16),
           isDense: true,
         ),
-        style: const TextStyle(fontSize: 18),
+        style: TextStyle(fontSize: screenWidth * 18 / 400),
       ),
     );
   }

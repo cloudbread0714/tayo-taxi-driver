@@ -18,8 +18,9 @@ dependencies:
   firebase_auth: ^4.17.5
   pigeon: ^25.3.1
   url_launcher: ^6.1.7
-  google_maps_flutter: ^2.5.0  # ✅ 위치 변경 (의존성이므로)
+  google_maps_flutter: ^2.5.0
   http: ^0.13.6
+  auto_size_text: ^3.0.0
 
 dev_dependencies:
   flutter_test:

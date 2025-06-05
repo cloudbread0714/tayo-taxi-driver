@@ -1,8 +1,9 @@
-import 'dart:async';  // Timer 사용을 위해 import 추가
+import 'dart:async';  // Timer 사용
 import 'package:flutter/material.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'driver_request_page.dart';  // DriverRequestPage import
+import 'driver_request_page.dart';
 
 class NavigationPickupDestinationPage extends StatefulWidget {
   final String requestId;
@@ -32,7 +33,7 @@ class _NavigationPickupDestinationPageState
           .collection('ride_requests')
           .doc(widget.requestId)
           .update({
-        'status': 'end',  // 상태를 'end'로 변경
+        'status': 'end',  // 상태 'end'로 변경
       });
 
       if (mounted) {
@@ -41,11 +42,11 @@ class _NavigationPickupDestinationPageState
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("목적지에 도착했습니다.")),
+          const SnackBar(content: AutoSizeText("목적지에 도착했습니다.")),
         );
 
         // 5초 후에 DriverRequestPage로 이동
-        Timer(const Duration(seconds: 5), () {
+        Timer(const Duration(seconds: 3), () {
           if (mounted) {
             Navigator.pushAndRemoveUntil(
               context,
@@ -69,24 +70,26 @@ class _NavigationPickupDestinationPageState
 
   @override
   Widget build(BuildContext context) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double screenHeight = MediaQuery.of(context).size.height;
+
     final markers = {
       Marker(markerId: const MarkerId('pickup'), position: widget.pickupLocation),
       Marker(markerId: const MarkerId('destination'), position: widget.destinationLocation),
     };
 
     return Scaffold(
-      //appBar: AppBar(title: const Text('목적지 네비게이션')),
       body: Column(
         children: [
-          const SizedBox(height: 65),
-          const Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Text(
+          SizedBox(height: screenHeight * 65 / 800),
+          Padding(
+            padding: EdgeInsets.all(screenWidth * 16.0 / 400),
+            child: AutoSizeText(
               '목적지로 이동 중...',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: screenWidth * 24 / 400, fontWeight: FontWeight.bold),
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: screenHeight * 20 / 800),
           Expanded(
             child: GoogleMap(
               initialCameraPosition: _initialCameraPosition,
@@ -96,25 +99,25 @@ class _NavigationPickupDestinationPageState
           ),
           if (errorMessage != null)
             Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(errorMessage!, style: const TextStyle(color: Colors.red)),
+              padding: EdgeInsets.all(screenWidth * 8.0 / 400),
+              child: AutoSizeText(errorMessage!, style: const TextStyle(color: Colors.red)),
             ),
           Padding(
-            padding: const EdgeInsets.all(40.0),
+            padding: EdgeInsets.all(screenWidth * 40.0 / 400),
             child: SizedBox(
               width: double.infinity,
               height: 50,
               child: ElevatedButton(
                 onPressed: _arrivalConfirmed ? null : _markArrival, // 중복 클릭 방지
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.green.shade200),
-                child: Text(
+                child: AutoSizeText(
                   _arrivalConfirmed ? '도착 처리 중...' : '목적지 도착',
-                  style: const TextStyle(color: Colors.black, fontSize: 23),
+                  style: TextStyle(color: Colors.black, fontSize: screenWidth * 23 / 400),
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: screenHeight * 20 / 800),
         ],
       ),
     );

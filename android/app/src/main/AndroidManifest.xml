@@ -1,9 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.tayotaxi_driver">
 
-    <!-- ✅ 인터넷 권한 추가 -->
+    <!-- ✅ 인터넷 및 위치 권한 -->
     <uses-permission android:name="android.permission.INTERNET" />
-
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
@@ -23,26 +22,33 @@
             android:hardwareAccelerated="true"
             android:windowSoftInputMode="adjustResize">
 
+            <!-- Flutter 테마 -->
             <meta-data
                 android:name="io.flutter.embedding.android.NormalTheme"
                 android:resource="@style/NormalTheme" />
 
+            <!-- 앱 실행 entry -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+
+
         </activity>
 
-        <!-- Naver Map Client ID Meta-Data -->
+
+        <!-- Google Maps API 키 -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAZ0JlE3jDLccPhO6BgoQy3S5WINi8UKKQ" />
 
+        <!-- Flutter 엔진 설정 -->
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
     </application>
 
+    <!-- 기타 앱 탐색 허용 -->
     <queries>
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>

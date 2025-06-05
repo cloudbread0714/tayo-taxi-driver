@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:latlong2/latlong.dart' as ll;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-import 'driver_login_page.dart';
 import 'Before_drive.dart';
 import 'navigate_to_pickup_page.dart';
 
@@ -95,9 +95,12 @@ class _DriverRequestPageState extends State<DriverRequestPage> {
 
   @override
   Widget build(BuildContext context) {
+    final double screenWidth  = MediaQuery.of(context).size.width;
+    final double screenHeight = MediaQuery.of(context).size.height;
+
     if (_locationError.isNotEmpty) {
       return Scaffold(
-        body: Center(child: Text(_locationError)),
+        body: Center(child: AutoSizeText(_locationError)),
       );
     }
     if (_driverLocation == null) {
@@ -111,7 +114,15 @@ class _DriverRequestPageState extends State<DriverRequestPage> {
         stream: rideRef.where('status', isEqualTo: 'pending').snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            return Center(child: Text('데이터 불러오기 실패: ${snapshot.error}'));
+            return Center(
+              child: AutoSizeText(
+                '데이터 불러오기 실패: ${snapshot.error}',
+                style: TextStyle(
+                  fontSize: screenWidth * 20 / 400,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            );
           }
           final docs = snapshot.data?.docs ?? [];
 
@@ -153,17 +164,16 @@ class _DriverRequestPageState extends State<DriverRequestPage> {
             return distanceKm <= 5.0;
           }).toList();
 
-          // === UI: 카드 영역 ===
           Widget cardContent;
           List<Widget> actionButtons = [];
 
           if (filteredEntries.isEmpty) {
             // 콜 대기중
-            cardContent = const Center(
-              child: Text(
+            cardContent = Center(
+              child: AutoSizeText(
                 '콜 대기중...',
                 style: TextStyle(
-                  fontSize: 40,
+                  fontSize: screenWidth * 40 / 400,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
                 ),
@@ -181,52 +191,72 @@ class _DriverRequestPageState extends State<DriverRequestPage> {
             final map = firstEntry.value;
             final ride = RideRequest.fromMap(firstEntry.key, map);
 
-            final double pickupLat = (map['pickupLat'] as num).toDouble();
-            final double pickupLng = (map['pickupLng'] as num).toDouble();
-            final double destLat = ((map['destinationLat'] as num?) ?? 0).toDouble();
-            final double destLng = ((map['destinationLng'] as num?) ?? 0).toDouble();
+            final double pickupLat =
+            (map['pickupLat'] as num).toDouble();
+            final double pickupLng =
+            (map['pickupLng'] as num).toDouble();
+            final double destLat =
+            ((map['destinationLat'] as num?) ?? 0).toDouble();
+            final double destLng =
+            ((map['destinationLng'] as num?) ?? 0).toDouble();
 
             cardContent = Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                // 출발지 영역
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text(
+                    AutoSizeText(
                       '출발지: ',
                       style: TextStyle(
-                        fontSize: 25,
-                        //fontWeight: FontWeight.bold,
+                        fontSize: screenWidth * 25 / 400,
+                        fontWeight: FontWeight.bold
                       ),
+                      maxLines: 1,
+                      minFontSize: 12,
                     ),
-                    Text(
-                      ride.pickupPlaceName,
-                      style: const TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
+                    SizedBox(width: screenWidth * 5 / 400),
+                    Expanded(
+                      child: AutoSizeText(
+                        ride.pickupPlaceName,
+                        style: TextStyle(
+                          fontSize: screenWidth * 28 / 400,
+                        ),
+                        maxLines: 1,
+                        minFontSize: 12,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.left,
                       ),
-                      textAlign: TextAlign.center,
                     ),
                   ],
                 ),
-                const SizedBox(height: 30),
+                SizedBox(height: screenHeight * 30 / 800),
+                // 도착지 영역
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text(
+                    AutoSizeText(
                       '도착지: ',
                       style: TextStyle(
-                        fontSize: 25,
-                        //fontWeight: FontWeight.bold,
+                        fontSize: screenWidth * 25 / 400,
+                        fontWeight: FontWeight.bold
                       ),
+                      maxLines: 1,
+                      minFontSize: 12,
                     ),
-                    Text(
-                      ride.destinationName,
-                      style: const TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
+                    SizedBox(width: screenWidth * 5 / 400),
+                    Expanded(
+                      child: AutoSizeText(
+                        ride.destinationName,
+                        style: TextStyle(
+                          fontSize: screenWidth * 28 / 400,
+                        ),
+                        maxLines: 1,
+                        minFontSize: 12,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.left,
                       ),
-                      textAlign: TextAlign.center,
                     ),
                   ],
                 ),
@@ -242,8 +272,10 @@ class _DriverRequestPageState extends State<DriverRequestPage> {
                       context,
                       MaterialPageRoute(
                         builder: (_) => NavigateToPickupPage(
-                          driverLocation:
-                          LatLng(_driverLocation!.latitude, _driverLocation!.longitude),
+                          driverLocation: LatLng(
+                            _driverLocation!.latitude,
+                            _driverLocation!.longitude,
+                          ),
                           pickupLocation: LatLng(pickupLat, pickupLng),
                           destinationLocation: LatLng(destLat, destLng),
                           docId: ride.docId,
@@ -254,18 +286,18 @@ class _DriverRequestPageState extends State<DriverRequestPage> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green.shade200,
                     foregroundColor: Colors.black,
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 21,
-                      horizontal: 30,
+                    padding: EdgeInsets.symmetric(
+                      vertical: screenHeight * 21 / 800,
+                      horizontal: screenWidth * 30 / 400,
                     ),
                   ),
-                  child: const Text(
+                  child: AutoSizeText(
                     '수락',
-                    style: TextStyle(fontSize: 20),
+                    style: TextStyle(fontSize: screenWidth * 20 / 400),
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: screenWidth * 8 / 400),
               Expanded(
                 child: ElevatedButton(
                   onPressed: () async {
@@ -274,14 +306,14 @@ class _DriverRequestPageState extends State<DriverRequestPage> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red.shade100,
                     foregroundColor: Colors.black,
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 21,
-                      horizontal: 30,
+                    padding: EdgeInsets.symmetric(
+                      vertical: screenHeight * 21 / 800,
+                      horizontal: screenWidth * 30 / 400,
                     ),
                   ),
-                  child: const Text(
+                  child: AutoSizeText(
                     '거절',
-                    style: TextStyle(fontSize: 20),
+                    style: TextStyle(fontSize: screenWidth * 20 / 400),
                   ),
                 ),
               ),
@@ -290,14 +322,16 @@ class _DriverRequestPageState extends State<DriverRequestPage> {
 
           return SafeArea(
             child: Padding(
-              padding:
-              const EdgeInsets.symmetric(horizontal: 24.0, vertical: 50.0),
+              padding: EdgeInsets.symmetric(
+                horizontal: screenWidth * 24 / 400,
+                vertical: screenHeight * 50 / 800,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Container(
-                    height: MediaQuery.of(context).size.height * 0.6,
-                    padding: const EdgeInsets.all(24),
+                    height: screenHeight * 0.6,
+                    padding: EdgeInsets.all(screenWidth * 24 / 400),
                     decoration: BoxDecoration(
                       color: Colors.grey.shade100,
                       borderRadius: BorderRadius.circular(12),
@@ -312,16 +346,14 @@ class _DriverRequestPageState extends State<DriverRequestPage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        // 카드 중앙에 콜 대기중 또는 출발/도착 텍스트 배치
                         Expanded(
                           child: Center(
                             child: cardContent,
                           ),
                         ),
-                        // 버튼 행: 카드 맨 아래 8px 공백 두고 배치
                         if (actionButtons.isNotEmpty)
                           Padding(
-                            padding: const EdgeInsets.only(bottom: 8.0),
+                            padding: EdgeInsets.only(bottom: screenHeight * 8 / 800),
                             child: Row(
                               children: actionButtons,
                             ),
@@ -335,16 +367,18 @@ class _DriverRequestPageState extends State<DriverRequestPage> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green.shade200,
                       foregroundColor: Colors.black,
-                      padding: const EdgeInsets.symmetric(vertical: 25),
-                      textStyle: const TextStyle(
-                        fontSize: 25,
+                      padding: EdgeInsets.symmetric(
+                        vertical: screenHeight * 25 / 800,
+                      ),
+                      textStyle: TextStyle(
+                        fontSize: screenWidth * 25 / 400,
                         fontWeight: FontWeight.bold,
                       ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: const Text('퇴근하기'),
+                    child: const AutoSizeText('퇴근하기'),
                   ),
                 ],
               ),

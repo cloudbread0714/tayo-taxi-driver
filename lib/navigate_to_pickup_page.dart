@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -9,7 +10,7 @@ import 'navigate_to_destination_page.dart';
 class NavigateToPickupPage extends StatefulWidget {
   final LatLng driverLocation;
   final LatLng pickupLocation;
-  final LatLng destinationLocation; // 목적지 좌표 추가
+  final LatLng destinationLocation; // 목적지 좌표
   final String docId;
 
   const NavigateToPickupPage({
@@ -91,7 +92,7 @@ class _NavigateToPickupPageState extends State<NavigateToPickupPage> {
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("승객 위치에 도착했습니다.")),
+        const SnackBar(content: AutoSizeText("승객 위치에 도착했습니다.")),
       );
 
       // 목적지 네비게이션 페이지로 이동
@@ -193,24 +194,26 @@ class _NavigateToPickupPageState extends State<NavigateToPickupPage> {
 
   @override
   Widget build(BuildContext context) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double screenHeight = MediaQuery.of(context).size.height;
+
     final markers = {
       Marker(markerId: const MarkerId('driver'), position: _driver),
       Marker(markerId: const MarkerId('pickup'), position: _pickup),
     };
 
     return Scaffold(
-      //appBar: AppBar(title: const Text('승객 위치로 이동')),
       body: Column(
         children: [
-          const SizedBox(height: 65),
-          const Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Text(
+          SizedBox(height: screenHeight * 65 / 800),
+          Padding(
+            padding: EdgeInsets.all(screenWidth * 16.0 / 400),
+            child: AutoSizeText(
               '승객 위치까지 이동 중...',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: screenWidth * 24 / 400, fontWeight: FontWeight.bold),
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: screenHeight * 20 / 800),
           Expanded(
             child: GoogleMap(
               initialCameraPosition: CameraPosition(target: _pickup, zoom: 16),
@@ -221,21 +224,21 @@ class _NavigateToPickupPageState extends State<NavigateToPickupPage> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(40.0),
+            padding: EdgeInsets.all(screenWidth * 40.0 / 400),
             child: SizedBox(
               width: double.infinity,
               height: 50,
               child: ElevatedButton(
                 onPressed: _markArrivalAtPickup,
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.green.shade200),
-                child: const Text(
+                child: AutoSizeText(
                   ' 승객 위치에 도착 완료',
-                  style: TextStyle(color: Colors.black, fontSize: 16),
+                  style: TextStyle(color: Colors.black, fontSize: screenWidth * 16 / 400),
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: screenHeight * 20 / 800),
         ],
       ),
     );

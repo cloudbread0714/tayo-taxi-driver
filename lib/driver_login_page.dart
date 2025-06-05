@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tayotaxi_driver/Before_drive.dart';
@@ -24,7 +25,7 @@ class _DriverLoginPageState extends State<DriverLoginPage> {
     });
   }
 
-  /// 이미 로그인된 사용자가 있으면 대시보드로 이동
+  // 이미 로그인된 사용자가 있으면 대시보드로 이동
   Future<void> _checkLoginStatus() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
@@ -50,7 +51,7 @@ class _DriverLoginPageState extends State<DriverLoginPage> {
     }
   }
 
-  /// 이메일/비밀번호 로그인 처리 후 대시보드로 이동
+  // 이메일/비밀번호 로그인 처리 후 대시보드로 이동
   Future<void> _login() async {
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
@@ -96,12 +97,12 @@ class _DriverLoginPageState extends State<DriverLoginPage> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text(title),
-        content: Text(message),
+        title: AutoSizeText(title),
+        content: AutoSizeText(message),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('확인'),
+            child: const AutoSizeText('확인'),
           ),
         ],
       ),
@@ -110,51 +111,52 @@ class _DriverLoginPageState extends State<DriverLoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
+          padding: EdgeInsets.symmetric(horizontal: screenWidth * 24.0 / 400, vertical: screenHeight * 40.0 / 800),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: 27),
-              const Center(
-                child: Text(
+              SizedBox(height: screenHeight * 27 / 800),
+              Center(
+                child: AutoSizeText(
                   '기사용',
                   style: TextStyle(
-                    fontSize: 24,
+                    fontSize: screenWidth * 24 / 400,
                     fontWeight: FontWeight.w600,
                     color: Colors.black54,
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
-              const Center(
-                child: Icon(
-                  Icons.local_taxi,
-                  size: 100,
+              SizedBox(height: screenHeight * 16 / 800),
+              Center(
+                child: Icon(Icons.local_taxi, size: screenWidth * 100 / 400,
                   color: Colors.green,
                 ),
               ),
-              const SizedBox(height: 16),
-              const Center(
-                child: Text(
+              SizedBox(height: screenHeight * 16 / 800),
+              Center(
+                child: AutoSizeText(
                   '로그인',
                   style: TextStyle(
-                    fontSize: 36,
+                    fontSize: screenWidth * 36 / 400,
                     fontWeight: FontWeight.bold,
                     color: Colors.black87,
                   ),
                 ),
               ),
-              const SizedBox(height: 40),
+              SizedBox(height: screenHeight * 40 / 800),
               TextField(
                 controller: emailController,
-                style: const TextStyle(fontSize: 18),
+                style: TextStyle(fontSize: screenWidth * 18 / 400),
                 decoration: InputDecoration(
                   labelText: '아이디',
-                  labelStyle: const TextStyle(fontSize: 18),
+                  labelStyle: TextStyle(fontSize: screenWidth * 18 / 400),
                   contentPadding: const EdgeInsets.symmetric(
                       vertical: 22.0, horizontal: 16.0),
                   border: OutlineInputBorder(
@@ -162,14 +164,14 @@ class _DriverLoginPageState extends State<DriverLoginPage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: screenHeight * 20 / 800),
               TextField(
                 controller: passwordController,
                 obscureText: true,
-                style: const TextStyle(fontSize: 18),
+                style: TextStyle(fontSize: screenWidth * 18 / 400),
                 decoration: InputDecoration(
                   labelText: '비밀번호',
-                  labelStyle: const TextStyle(fontSize: 18),
+                  labelStyle: TextStyle(fontSize: screenWidth * 18 / 400),
                   contentPadding: const EdgeInsets.symmetric(
                       vertical: 22.0, horizontal: 16.0),
                   border: OutlineInputBorder(
@@ -177,7 +179,7 @@ class _DriverLoginPageState extends State<DriverLoginPage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 30),
+              SizedBox(height: screenHeight * 30 / 800),
               ElevatedButton(
                 onPressed: _login,
                 style: ElevatedButton.styleFrom(
@@ -188,12 +190,12 @@ class _DriverLoginPageState extends State<DriverLoginPage> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text(
+                child: AutoSizeText(
                   '로그인',
-                  style: TextStyle(fontSize: 20),
+                  style: TextStyle(fontSize: screenWidth * 20 / 400),
                 ),
               ),
-              const SizedBox(height: 15),
+              SizedBox(height: screenHeight * 15 / 800),
               ElevatedButton(
                 onPressed: _goToSignUp,
                 style: ElevatedButton.styleFrom(
@@ -204,25 +206,25 @@ class _DriverLoginPageState extends State<DriverLoginPage> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text(
+                child: AutoSizeText(
                   '회원가입',
-                  style: TextStyle(fontSize: 20),
+                  style: TextStyle(fontSize: screenWidth * 20 / 400),
                 ),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: screenHeight * 12 / 800),
               Center(
                 child: TextButton(
                   onPressed: () {},
-                  child: const Text(
+                  child: AutoSizeText(
                     '아이디/비밀번호 찾기',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: screenWidth * 16 / 400,
                       decoration: TextDecoration.underline,
                     ),
                   ),
                 ),
               ),
-              const SizedBox(height: 40),
+              SizedBox(height: screenHeight * 40 / 800),
             ],
           ),
         ),

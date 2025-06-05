@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tayotaxi_driver/driver_login_page.dart';
 import 'driver_request_page.dart';
@@ -15,15 +16,18 @@ class DriverDashboardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 30.0),
+          padding: EdgeInsets.symmetric(horizontal: screenWidth * 24.0 / 400, vertical: screenHeight * 30.0 / 800),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // 로그아웃 버튼 (맨 위 오른쪽)
+              // 로그아웃 버튼
               Align(
                 alignment: Alignment.topRight,
                 child: IconButton(
@@ -39,7 +43,7 @@ class DriverDashboardPage extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 12),
+              SizedBox(height: screenHeight * 12 / 800),
 
               // 프로필 영역
               Row(
@@ -51,15 +55,15 @@ class DriverDashboardPage extends StatelessWidget {
                       children: [
                         TextSpan(
                           text: driverName,
-                          style: const TextStyle(
-                            fontSize: 25,
+                          style: TextStyle(
+                            fontSize: screenWidth * 30 / 400,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         TextSpan(
                           text: ' 기사님',
-                          style: const TextStyle(
-                            fontSize: 20,
+                          style: TextStyle(
+                            fontSize: screenWidth * 25 / 400,
                             fontWeight: FontWeight.normal,
                           ),
                         ),
@@ -69,12 +73,12 @@ class DriverDashboardPage extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 48),
+              SizedBox(height: screenHeight * 48 / 800),
 
               // 차량 번호 카드
               Container(
                 height: 180,
-                padding: const EdgeInsets.all(24),
+                padding: EdgeInsets.all(screenWidth * 24 / 400),
                 decoration: BoxDecoration(
                   color: Colors.grey.shade100,
                   borderRadius: BorderRadius.circular(12),
@@ -87,10 +91,10 @@ class DriverDashboardPage extends StatelessWidget {
                   ],
                 ),
                 child: Center(
-                  child: Text(
+                  child: AutoSizeText(
                     carNumber,
-                    style: const TextStyle(
-                      fontSize: 45,
+                    style: TextStyle(
+                      fontSize: screenWidth * 45 / 400,
                       fontWeight: FontWeight.bold,
                       color: Colors.black87,
                     ),
@@ -112,15 +116,15 @@ class DriverDashboardPage extends StatelessWidget {
                   backgroundColor: Colors.green.shade200,
                   foregroundColor: Colors.black,
                   padding: const EdgeInsets.symmetric(vertical: 25),
-                  textStyle: const TextStyle(
-                    fontSize: 25,
+                  textStyle: TextStyle(
+                    fontSize: screenWidth * 25 / 400,
                     fontWeight: FontWeight.bold,
                   ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                child: const Text('출근하기'),
+                child: const AutoSizeText('출근하기'),
               ),
             ],
           ),
